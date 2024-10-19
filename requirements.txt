@@ -1,0 +1,15 @@
+fastapi==0.88.0
+uvicorn==0.20.0
+loguru==0.7.2
+python-dotenv==1.0.1
+SQLAlchemy==2.0.29
+sqlmodel==0.0.16
+alembic==1.13.1
+psycopg2-binary==2.9.9
+asyncpg==0.29.0
+bcrypt==4.1.2
+fastapi_pagination==0.12.22
+PyJWT==2.6.0
+python-jose==3.3.0
+cryptography==3.4.0
+requests==2.31.0
