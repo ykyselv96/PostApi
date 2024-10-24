@@ -1,9 +1,9 @@
 import uuid
 
-from sqlalchemy import MetaData, Column, Integer, String, TIMESTAMP, ForeignKey, Table, Text
+from sqlalchemy import MetaData, Column, Integer, String, TIMESTAMP, ForeignKey, Table, Text, Boolean
 from sqlmodel import Field, SQLModel
 
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import declarative_base, relationship, CascadeOptions
 from sqlalchemy.sql import func
 
 
@@ -18,9 +18,11 @@ class User(Base):
     email = Column(String, nullable=False)
     username = Column(String, nullable=False)
     password = Column(String, nullable=False)
-    description = Column(String, nullable=True)
     registred_at = Column(TIMESTAMP, default=func.now())
-
+    posts = relationship("Post", back_populates="author")
+    comments = relationship("Comment", back_populates="user")
+    comments_reply = Column(Boolean, default=False)
+    auto_reply_delay = Column(Integer, nullable=True)
 
 class Post(Base):
     __tablename__ = "posts"
@@ -29,9 +31,9 @@ class Post(Base):
     title = Column(String, nullable=False)
     text = Column(String, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-
     author = relationship('User', back_populates='posts')
-    comments = relationship('Comment', back_populates='posts')
+    comments = relationship('Comment', back_populates='post')
+    created_at = Column(TIMESTAMP, default=func.now())
 
 class Comment(Base):
     __tablename__ = "comments"
@@ -39,8 +41,11 @@ class Comment(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
     text = Column(String, nullable=True)
-    post_id = Column(Integer, ForeignKey("posts.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-
+    post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    reply_to = Column(Integer, ForeignKey("comments.id", ondelete="CASCADE"),nullable=True)
     user = relationship('User', back_populates='comments')
     post = relationship('Post', back_populates='comments')
+    parent_comment = relationship("Comment", remote_side=[id], backref="replies")
+    created_at = Column(TIMESTAMP, default=func.now())
+
