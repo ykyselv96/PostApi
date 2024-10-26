@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from endpoints import auth, posts, comments
 import uvicorn
+from loguru import logger
 from fastapi.middleware.cors import CORSMiddleware
 from core.config.system_config import settings
-from loguru import logger
+from endpoints import auth, posts, comments, analytics
 
 
 app = FastAPI()
@@ -23,24 +23,19 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup():
-    # db = get_db()
-    # await db.connect()
-    logger.info("Connected to DB")
+    logger.info("App is startup")
 
 
 
 @app.on_event("shutdown")
 async def shutdown():
-
-    # db = get_db()
-    # await db.disconnect()
-    logger.info("Disconnected from DB")
+    logger.info("App is shutdown")
 
 
 app.include_router(posts.router)
 app.include_router(auth.router)
 app.include_router(comments.router)
-
+app.include_router(analytics.router)
 
 if __name__ == "__main__":
     uvicorn.run('main:app', host=settings.app_host, port=int(settings.app_port), reload=True)

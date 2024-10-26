@@ -1,19 +1,12 @@
-from datetime import datetime
 from typing import List
-from pydantic import ValidationError
 from sqlalchemy import select, update, delete
-from fastapi import status, HTTPException, Depends, Request
-from core.connections import get_session
-from db.models import Post
-from fastapi import HTTPException
-from schemas.post_schema import PostCreationForm, PostUpdationForm
-from schemas.user_schema import User
-from schemas.post_schema import PostResponse
+from fastapi import status, Depends, HTTPException
 from sqlalchemy.orm import selectinload
-
-from schemas.user_schema import UsersResponse
-
-from db.models import Comment
+from core.connections import get_session
+from db.models import Post,  Comment
+from schemas.post_schema import PostCreationForm, PostUpdationForm, PostResponse
+from schemas.user_schema import User, UsersResponse
+from utils.policy_check import policy_check
 
 
 class PostCrud:
@@ -35,10 +28,15 @@ class PostCrud:
 
         await self.if_post_in_db_by_title(post_title=payload.title)
 
-        obj_in = Post(title=payload.title, text=payload.text, user_id=curr_user.id)
-        self.db.add(obj_in)
+        is_blocked = policy_check(title=payload.title, text=payload.text)
 
+        obj_in = Post(title=payload.title, text=payload.text, user_id=curr_user.id, is_blocked=is_blocked)
+        self.db.add(obj_in)
         await self.db.commit()
+
+        if is_blocked:
+            raise HTTPException(status_code=403, detail="Your post contains prohibited content and has been blocked.")
+
         return obj_in
 
 
@@ -63,6 +61,7 @@ class PostCrud:
 
 
     async def get_post_by_id(self, post_id: int) -> PostResponse:
+
         statement = select(Post).options(selectinload(Post.author)).where(Post.id == post_id)
 
         db_result = await self.db.execute(statement)
@@ -76,6 +75,8 @@ class PostCrud:
             id=post.id,
             title=post.title,
             text=post.text,
+            created_at=post.created_at,
+            is_blocked=post.is_blocked,
             author=UsersResponse(
                 id=post.author.id,
                 username=post.author.username,

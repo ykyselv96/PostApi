@@ -1,17 +1,35 @@
-from fastapi import Depends, Request
+from fastapi import Depends, Request,  status, HTTPException
+from fastapi.security import HTTPBearer
 from crud.user_crud import User, get_user_crud, UserCrud
 from schemas.user_schema import User
 from core.connections import get_session
-from fastapi.security import HTTPBearer
 from utils.verify_token import VerifyToken
-from fastapi import status, HTTPException
+
 
 
 token_auth_scheme = HTTPBearer()
 
 
 async def get_current_user(request: Request, db=Depends(get_session), token: str = Depends(token_auth_scheme)) -> User:
+    """Retrieve the currently authenticated user from the database.
 
+     This function checks the validity of the provided JWT token, extracts the
+     user information from it, and returns the corresponding user from the database.
+
+     Parameters:
+         request (Request): The incoming HTTP request.
+         db (AsyncSession): The database session dependency, automatically provided
+                            by FastAPI.
+         token (str): The JWT token extracted from the request, obtained using the
+                      `token_auth_scheme`.
+
+     Returns:
+         User: The authenticated user object retrieved from the database.
+
+     Raises:
+         HTTPException: If the token is invalid or expired, a 401 Unauthorized
+                        exception is raised with an appropriate error message.
+     """
     user_crud = UserCrud(db=db)
 
     result = VerifyToken(token.credentials).verify()

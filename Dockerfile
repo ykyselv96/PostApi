@@ -13,4 +13,4 @@ COPY . ./
 
 EXPOSE $PORT
 
-CMD python3 app/main.py
+CMD alembic upgrade head && python3 app/main.py

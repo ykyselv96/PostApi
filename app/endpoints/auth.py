@@ -1,44 +1,15 @@
-from fastapi import APIRouter, status, Depends
-from core.connections import get_session
-from schemas.user_schema import UsersResponse, SignInForm, SignupForm
-from jose import jwt
-from datetime import datetime, timedelta
-from core.config import system_config
-import math
-from crud.user_crud import UserCrud, get_user_crud
+from fastapi import APIRouter, status, Depends, HTTPException
 from fastapi.security import HTTPBearer
-
-from crud.user_crud import get_user_crud
-
-# from core.get_current_user import get_current_user
-
+from core.connections import get_session
+from crud.user_crud import UserCrud, get_user_crud
 from core.get_current_user import get_current_user
+from schemas.user_schema import UsersResponse, SignInForm, SignupForm, UserUpdateForm
+from fastapi_pagination import Page, Params, paginate
 
 
 router = APIRouter(tags=["authorization and registration"], prefix="/users")
 
 token_auth_scheme = HTTPBearer()
-
-
-def create_access_token(user_email) -> str:
-
-    expires_delta = datetime.utcnow() + timedelta(minutes=int(system_config.settings.access_token_expire_minutes))
-
-    to_encode = {"exp": expires_delta, "sub": str(user_email)}
-    encoded_jwt = jwt.encode(to_encode, system_config.settings.jwt_access_secret_key, system_config.settings.algorithm)
-
-    return encoded_jwt
-
-
-def create_refresh_token(user_email) -> str:
-
-    refresh_token_expire_minutes = math.prod([int(el) for el in system_config.settings.refresh_token_expire_minutes.split('*')])
-
-    expires_delta = datetime.utcnow() + timedelta(minutes=int(refresh_token_expire_minutes))
-
-    to_encode = {"exp": expires_delta, "sub": str(user_email)}
-    encoded_jwt = jwt.encode(to_encode, system_config.settings.jwt_refresh_secret_key, system_config.settings.algorithm)
-    return encoded_jwt
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)
@@ -49,14 +20,55 @@ async def login(payload: SignInForm, db=Depends(get_session)):
 
     return {
         "token_type": 'Bearer',
-        "access_token": create_access_token(user_in_db.email),
-        "refresh_token": create_refresh_token(user_in_db.email),
+        "access_token": user_crud.create_access_token(user_in_db.email),
+        "refresh_token": user_crud.create_refresh_token(user_in_db.email),
     }
 
 
 @router.post("/", status_code=status.HTTP_200_OK, response_model=UsersResponse)
-async def add_new_user(payload: SignupForm, user_crud: UserCrud = Depends(get_user_crud)) -> UsersResponse:
+async def create_user(payload: SignupForm, user_crud: UserCrud = Depends(get_user_crud)) -> UsersResponse:
     res = await user_crud.create_user(payload=payload)
+    return res
+
+
+@router.get("/", status_code=status.HTTP_200_OK, response_model=Page[UsersResponse])
+async def get_all_users(user_crud: UserCrud = Depends(get_user_crud), params: Params = Depends()) -> Page[UsersResponse]:
+    res = await user_crud.get_all_users()
+
+    return paginate(res, params)
+
+
+@router.get("/{user_id}", status_code=status.HTTP_200_OK, response_model=UsersResponse)
+async def get_user_by_id(user_id: int, user_crud: UserCrud = Depends(get_user_crud)) -> UsersResponse:
+    return await user_crud.get_user_by_id(user_id=user_id)
+
+
+
+@router.delete("/{user_id}",  status_code=status.HTTP_200_OK, response_model=UsersResponse)
+async def delete_user(user_id: int, user_crud: UserCrud = Depends(get_user_crud), curr_user=Depends(get_current_user)) -> UsersResponse:
+
+    if curr_user.id == user_id:
+        return await user_crud.delete_user(user_id=user_id)
+
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can't delete another users",
+        )
+
+
+@router.put("/{user_id}", status_code=status.HTTP_200_OK, response_model=UsersResponse)
+async def update_user(payload: UserUpdateForm, user_id: int, user_crud: UserCrud = Depends(get_user_crud), curr_user=Depends(get_current_user)) -> UsersResponse:
+
+    if curr_user.id == user_id:
+        res = await user_crud.update_user(payload=payload, user_id=user_id)
+
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can't update other users",
+        )
+
     return res
 
 

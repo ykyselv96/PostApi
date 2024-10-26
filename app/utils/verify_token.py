@@ -1,5 +1,7 @@
+from typing import Any
 import jwt
 from core.config import system_config
+
 
 class VerifyToken():
     """Does all the token verification using PyJWT"""
@@ -9,7 +11,13 @@ class VerifyToken():
         self.config = system_config.settings
         self.secret_key = self.config.jwt_access_secret_key
 
-    def verify(self):
+    def verify(self) -> dict[str, Any]:
+        """
+        Verifies the JWT token and decodes its payload.
+
+        Returns:
+            dict: A dictionary containing the payload if valid, or an error message if invalid.
+        """
         try:
             payload = jwt.decode(
                 self.token,

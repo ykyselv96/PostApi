@@ -1,22 +1,10 @@
-from typing import List
-
 from fastapi import APIRouter, status, Depends
-
-from core.connections import async_session
-# from core.get_current_user import get_current_user
-
-from core.connections import get_session
 from fastapi_pagination import Page, Params, paginate
-
+from core.get_current_user import get_current_user
 from crud.post_crud import PostCrud, get_post_crud
 from schemas.post_schema import PostCreationForm, PostResponse, PostUpdationForm
-
-from core.get_current_user import get_current_user
-
 from schemas.user_schema import User
 
-from crud.comment_crud import get_comment_crud, CommentCrud
-from schemas.comment_schema import CommentResponse, CommentUpdationForm
 
 router = APIRouter(tags=["post management"], prefix="/posts")
 
