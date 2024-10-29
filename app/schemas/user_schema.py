@@ -22,6 +22,7 @@ class User(BaseModel):
     comments_reply: Optional[bool] = False
     auto_reply_delay: Optional[int] = 0
 
+
 class UsersResponse(BaseModel):
     """Model representing a user response(how it shown to other users).
 
@@ -53,9 +54,6 @@ class SignInForm(BaseModel):
     password: str
 
 
-
-
-
 class UserUpdateForm(BaseModel):
     """Model for user update.
 
@@ -64,7 +62,8 @@ class UserUpdateForm(BaseModel):
            email (Optional[str]): The email address of the user.
            password (Optional[str]): The password of the user (must be at least 8 characters).
            password_repeat (Optional[str]): A repeat of the password for confirmation (must match the password).
-           comments_reply (Optional[bool]): Indicates if the user want to have auto_reply to comments (default is False).
+           comments_reply (Optional[bool]): Indicates if the user want to have auto_reply to comments
+           (default is False).
            auto_reply_delay (Optional[int]): The delay in minutes for automatic replies (default is 0).
        """
     username: Optional[str]
@@ -121,6 +120,7 @@ class UserUpdateForm(BaseModel):
             model_values['password'] = hashed_password
 
         return model_values
+
 
 class SignupForm(BaseModel):
     """Model for user signup.

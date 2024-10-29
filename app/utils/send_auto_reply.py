@@ -23,25 +23,21 @@ async def send_auto_reply(comment_id: int, delay: int, db: Session):
     """
 
     delay_in_seconds = delay * 60
-
     time.sleep(delay_in_seconds)
-
     statement = (select(Comment).options(selectinload(Comment.post)).options(selectinload(Comment.user))
                  .where(Comment.id == comment_id))
 
     db_result = await db.execute(statement)
     original_comment = db_result.scalars().first()
 
-
     if original_comment:
         vertexai.init(project=settings.google_cloud_project_id, location="us-central1")
-
         model = GenerativeModel("gemini-1.5-flash-002")
-
         response = model.generate_content(
-            f"Please, make autoreply for this comment: {original_comment.text}. It should be simple(as autoreply) and don't have options"
+            f"Please, make autoreply for this comment: {original_comment.text}."
+            f" It should be simple(as autoreply) and don't have options"
         )
-        print("DDDD",response.text)
+
         auto_reply = Comment(
             title="Auto-reply",
             text=response.text,

@@ -7,6 +7,7 @@ metadata = MetaData()
 
 Base = declarative_base()
 
+
 class User(Base):
     """Represents a user in the system.
 
@@ -30,6 +31,7 @@ class User(Base):
     comments = relationship("Comment", back_populates="user")
     comments_reply = Column(Boolean, default=False)
     auto_reply_delay = Column(Integer, nullable=True)
+
 
 class Post(Base):
     """Represents a post created by a user.
@@ -55,6 +57,7 @@ class Post(Base):
     created_at = Column(TIMESTAMP, default=func.now())
     is_blocked = Column(Boolean, default=False)
 
+
 class Comment(Base):
     """Represents a comment on a post.
 
@@ -71,7 +74,8 @@ class Comment(Base):
         post (relationship): The post to which the comment belongs (linked via post_id).
         parent_comment (relationship): The replies to this comment (if any).
         created_at (TIMESTAMP): The timestamp of when the comment was created (defaults to the current time).
-        is_blocked (bool): Indicates if the comment is blocked, when inappropriate language is present  (defaults to False).
+        is_blocked (bool): Indicates if the comment is blocked, when inappropriate language is present
+        (defaults to False).
     """
 
     __tablename__ = "comments"
@@ -81,7 +85,7 @@ class Comment(Base):
     text = Column(String, nullable=True)
     post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    reply_to = Column(Integer, ForeignKey("comments.id", ondelete="CASCADE"),nullable=True)
+    reply_to = Column(Integer, ForeignKey("comments.id", ondelete="CASCADE"), nullable=True)
     user = relationship('User', back_populates='comments')
     post = relationship('Post', back_populates='comments')
     parent_comment = relationship("Comment", remote_side=[id], backref="replies")

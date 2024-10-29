@@ -26,7 +26,7 @@ class VerifyToken():
             )
         except jwt.ExpiredSignatureError:
             return {"status": "error", "message": "Token has expired."}
-        except jwt.InvalidTokenError as error:
+        except jwt.InvalidTokenError:
             return {"status": "error", "message": "Token is invalid."}
 
         return payload

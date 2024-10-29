@@ -1,0 +1,3 @@
+[flake8]
+max-line-length = 120
+exclude = .git, __pycache__, docs, migrations, venv, charismatic-sum-439609-g7-230a4ff5cd79.json

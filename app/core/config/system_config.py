@@ -35,8 +35,8 @@ class Settings:
     db_password = os.getenv("POSTGRES_PASSWORD")
     db_host = os.getenv("POSTGRES_HOST")
     db_port = os.getenv("POSTGRES_PORT")
-    DATABASE_URI = f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:" \
-               f"{db_port}/{db_name}"
+    DATABASE_URI = f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:"\
+                   f"{db_port}/{db_name}"
 
     jwt_access_secret_key = os.getenv("JWT_ACCESS_SECRET_KEY")
     jwt_refresh_secret_key = os.getenv("JWT_REFRESH_SECRET_KEY")
@@ -47,5 +47,15 @@ class Settings:
     google_cloud_project_id = os.getenv("GOOGLE_CLOUD_PROJECT_ID")
 
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "charismatic-sum-439609-g7-230a4ff5cd79.json"
+
+    test_db_name = os.getenv("POSTGRES_DB_TEST")
+    test_db_user = os.getenv("POSTGRES_USER")
+    test_db_password = os.getenv("POSTGRES_PASSWORD")
+    test_db_host = os.getenv("TEST_DB_HOST")
+    test_db_port = os.getenv("TEST_DB_PORT")
+
+    TEST_DATABASE_URI = f"postgresql+asyncpg://{test_db_user}:{test_db_password}@{test_db_host}:" \
+                        f"{test_db_port}/{test_db_name}"
+
 
 settings = Settings()

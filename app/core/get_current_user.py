@@ -1,10 +1,9 @@
 from fastapi import Depends, Request,  status, HTTPException
 from fastapi.security import HTTPBearer
-from crud.user_crud import User, get_user_crud, UserCrud
+from crud.user_crud import UserCrud
 from schemas.user_schema import User
 from core.connections import get_session
 from utils.verify_token import VerifyToken
-
 
 
 token_auth_scheme = HTTPBearer()

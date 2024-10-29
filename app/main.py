@@ -21,10 +21,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.on_event("startup")
 async def startup():
     logger.info("App is startup")
-
 
 
 @app.on_event("shutdown")
@@ -36,6 +36,7 @@ app.include_router(posts.router)
 app.include_router(auth.router)
 app.include_router(comments.router)
 app.include_router(analytics.router)
+
 
 if __name__ == "__main__":
     uvicorn.run('main:app', host=settings.app_host, port=int(settings.app_port), reload=True)

@@ -1,5 +1,4 @@
 import datetime
-
 from pydantic import BaseModel, Field
 from typing import Optional
 from schemas.user_schema import UsersResponse
@@ -15,6 +14,7 @@ class PostCreationForm(BaseModel):
     title: str = Field(..., min_length=1)
     text: str
 
+
 class PostUpdationForm(BaseModel):
     """Model for updating a post.
 
@@ -24,6 +24,7 @@ class PostUpdationForm(BaseModel):
     """
     title: Optional[str] = Field(..., min_length=1)
     text: Optional[str]
+
 
 class PostResponse(BaseModel):
     """Model for representing a post response.
@@ -42,5 +43,6 @@ class PostResponse(BaseModel):
     is_blocked: bool
     created_at: datetime.datetime
     author: UsersResponse
+
     class Config:
         orm_mode = True

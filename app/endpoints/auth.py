@@ -25,16 +25,16 @@ async def login(payload: SignInForm, db=Depends(get_session)):
     }
 
 
-@router.post("/", status_code=status.HTTP_200_OK, response_model=UsersResponse)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=UsersResponse)
 async def create_user(payload: SignupForm, user_crud: UserCrud = Depends(get_user_crud)) -> UsersResponse:
     res = await user_crud.create_user(payload=payload)
     return res
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=Page[UsersResponse])
-async def get_all_users(user_crud: UserCrud = Depends(get_user_crud), params: Params = Depends()) -> Page[UsersResponse]:
+async def get_all_users(user_crud: UserCrud = Depends(get_user_crud), params: Params = Depends()) \
+        -> Page[UsersResponse]:
     res = await user_crud.get_all_users()
-
     return paginate(res, params)
 
 
@@ -43,9 +43,9 @@ async def get_user_by_id(user_id: int, user_crud: UserCrud = Depends(get_user_cr
     return await user_crud.get_user_by_id(user_id=user_id)
 
 
-
 @router.delete("/{user_id}",  status_code=status.HTTP_200_OK, response_model=UsersResponse)
-async def delete_user(user_id: int, user_crud: UserCrud = Depends(get_user_crud), curr_user=Depends(get_current_user)) -> UsersResponse:
+async def delete_user(user_id: int, user_crud: UserCrud = Depends(get_user_crud),
+                      curr_user=Depends(get_current_user)) -> UsersResponse:
 
     if curr_user.id == user_id:
         return await user_crud.delete_user(user_id=user_id)
@@ -58,7 +58,8 @@ async def delete_user(user_id: int, user_crud: UserCrud = Depends(get_user_crud)
 
 
 @router.put("/{user_id}", status_code=status.HTTP_200_OK, response_model=UsersResponse)
-async def update_user(payload: UserUpdateForm, user_id: int, user_crud: UserCrud = Depends(get_user_crud), curr_user=Depends(get_current_user)) -> UsersResponse:
+async def update_user(payload: UserUpdateForm, user_id: int, user_crud: UserCrud = Depends(get_user_crud),
+                      curr_user=Depends(get_current_user)) -> UsersResponse:
 
     if curr_user.id == user_id:
         res = await user_crud.update_user(payload=payload, user_id=user_id)
@@ -72,6 +73,6 @@ async def update_user(payload: UserUpdateForm, user_id: int, user_crud: UserCrud
     return res
 
 
-@router.get("/me", status_code=status.HTTP_200_OK)
+@router.get("/me", status_code=status.HTTP_200_OK, response_model=UsersResponse)
 async def me(current_user=Depends(get_current_user)) -> UsersResponse:
     return current_user

@@ -22,4 +22,11 @@ Also for automatic responses to comments
 #### To run project docker-compose if you want remake image:
     docker-compose up --build
 
+### 4) To run tests:
+#### 1. set .env settings for test_db
+#### 2. to build test_db container
+    docker-compose up --build db_test
+#### 3. run tests
+    python3 -m pytest
+    
 

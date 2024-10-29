@@ -2,14 +2,13 @@ from typing import List
 from jose import jwt
 from datetime import datetime, timedelta
 import math
-
 from sqlalchemy import select, delete, update
 from fastapi import status, HTTPException, Depends
 from schemas.user_schema import UsersResponse, SignupForm, UserUpdateForm
 from core.connections import get_session
 from core.config import system_config
 from db.models import User
-from utils.hash_password import check_password, hash_password
+from utils.hash_password import check_password
 
 
 class UserCrud:
@@ -64,7 +63,6 @@ class UserCrud:
                 detail='There is already another user with this email',
             )
 
-
     async def create_user(self, payload: SignupForm) -> UsersResponse:
 
         await self.if_user_in_db(payload=payload)
@@ -73,9 +71,8 @@ class UserCrud:
         await self.db.commit()
         return obj_in
 
-
     async def get_user_by_email(self, email: str) -> UsersResponse:
-        statement = select(User).where(User.email==email)
+        statement = select(User).where(User.email == email)
         user_in_db = (await self.db.execute(statement)).scalars().first()
 
         if not user_in_db:
@@ -100,7 +97,6 @@ class UserCrud:
             )
 
         return user_in_db
-
 
     async def get_all_users(self) -> List[UsersResponse]:
         db_result = await self.db.execute(select(User))

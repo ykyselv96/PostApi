@@ -1,12 +1,8 @@
-from fastapi import APIRouter, Query, status, Depends, BackgroundTasks
+from fastapi import APIRouter, Query, status, Depends
 from datetime import date
-from fastapi_pagination import Page, Params, paginate
-from core.get_current_user import get_current_user
 from crud.comment_crud import get_comment_crud, CommentCrud
-from schemas.post_schema import PostResponse
-from schemas.user_schema import User
-from schemas.comment_schema import CommentCreationForm, CommentUpdationForm, CommentResponse, CommentStatistic
-from sqlalchemy.util import await_only
+from schemas.comment_schema import CommentStatistic
+
 
 router = APIRouter(tags=["comment analytics"])
 

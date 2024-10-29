@@ -16,6 +16,7 @@ class CommentCreationForm(BaseModel):
     text: str
     reply_to: Optional[int] = None
 
+
 class CommentUpdationForm(BaseModel):
     """Model for updating a comment.
 
@@ -25,6 +26,7 @@ class CommentUpdationForm(BaseModel):
      """
     title: Optional[str] = Field(..., min_length=1)
     text: Optional[str]
+
 
 class CommentResponse(BaseModel):
     """Model for representing a comment.
